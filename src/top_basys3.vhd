@@ -24,7 +24,7 @@ library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
 
-
+--# Establish top basys3, this code was given to me.
 entity top_basys3 is
     port(
         -- inputs
@@ -45,8 +45,73 @@ end top_basys3;
 architecture top_basys3_arch of top_basys3 is 
   
 	-- declare components and signals
+	--#Signals
+	--# There is nothing that I see that I need to declare.
+	
+    --#Lets declare the components
 
-  
+    --#Declare the sevenseg_decoder
+    component sevenseg_decoder is
+        port (
+            i_Hex : in STD_LOGIC_VECTOR (3 downto 0);
+            o_seg_n : out STD_LOGIC_VECTOR (6 downto 0)
+        );
+    end component sevenseg_decoder;
+    
+    --#Declare the TDM4
+    component TDM4 is
+        generic ( constant k_WIDTH : natural  := 4); -- bits in input and output
+        Port ( i_clk		: in  STD_LOGIC;
+               i_reset		: in  STD_LOGIC; -- asynchronous
+               i_D3 		: in  STD_LOGIC_VECTOR (k_WIDTH - 1 downto 0);
+               i_D2 		: in  STD_LOGIC_VECTOR (k_WIDTH - 1 downto 0);
+               i_D1 		: in  STD_LOGIC_VECTOR (k_WIDTH - 1 downto 0);
+               i_D0 		: in  STD_LOGIC_VECTOR (k_WIDTH - 1 downto 0);
+               o_data		: out STD_LOGIC_VECTOR (k_WIDTH - 1 downto 0);
+               o_sel		: out STD_LOGIC_VECTOR (3 downto 0)	-- selected data line (one-cold)
+        );
+    end component TDM4;
+    
+    --#Declare my clock divider
+	component clock_divider is
+        generic ( constant k_DIV : natural := 4	); -- How many clk cycles until slow clock toggles
+                                                   -- Effectively, you divide the clk double this 
+                                                   -- number (e.g., k_DIV := 2 --> clock divider of 4)
+        port ( 	i_clk    : in std_logic;
+                i_reset  : in std_logic;		   -- asynchronous
+                o_clk    : out std_logic		   -- divided (slow) clock
+        );
+    end component clock_divider;
+    
+    --#Declare my twos compliment decoder
+    component twos_comp is
+    port (
+        i_bin: in std_logic_vector(7 downto 0);
+        o_sign: out std_logic;
+        o_hund: out std_logic_vector(3 downto 0);
+        o_tens: out std_logic_vector(3 downto 0);
+        o_ones: out std_logic_vector(3 downto 0)
+    );
+    end component twos_comp;
+
+    --#Declare the ALU
+    component ALU is
+        Port ( i_A : in STD_LOGIC_VECTOR (7 downto 0);
+               i_B : in STD_LOGIC_VECTOR (7 downto 0);
+               i_op : in STD_LOGIC_VECTOR (2 downto 0);
+               o_result : out STD_LOGIC_VECTOR (7 downto 0);
+               o_flags : out STD_LOGIC_VECTOR (3 downto 0));
+    end component ALU;
+    
+    --Declare the controller_FSM
+    component controller_fsm is
+    Port ( i_reset : in STD_LOGIC;
+           i_adv : in STD_LOGIC;
+           o_cycle : out STD_LOGIC_VECTOR (3 downto 0));
+    end component controller_fsm;
+    
+
+
 begin
 	-- PORT MAPS ----------------------------------------
 
