@@ -40,7 +40,7 @@ begin
 
 -- Next State Logic
 
-    F_Q_next(0) <= (i_adv and f_Q(3)) or i_reset;
+    F_Q_next(0) <= (i_adv and f_Q(3));
     F_Q_next(1) <= (i_adv and f_Q(0));
     F_Q_next(2) <= (i_adv and f_Q(1));
     F_Q_next(3) <= (i_adv and f_Q(2));
@@ -52,4 +52,14 @@ begin
                "1000" when f_Q = x"8" else
                "0001";
 
+process(i_adv, i_reset)
+begin
+    if i_reset = '1' then
+        f_Q <= "0001";
+    elsif rising_edge(i_adv) then
+        f_Q <= f_Q_next;
+    end if;
+end process;
+
 end FSM;
+
